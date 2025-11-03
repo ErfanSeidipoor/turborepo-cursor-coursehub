@@ -1,6 +1,8 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Instructor } from './instructor.entity';
+import { Enrollment } from './enrollment.entity';
+import { CourseReview } from './course-review.entity';
 
 /**
  * TABLE-NAME: users
@@ -45,4 +47,16 @@ export class User extends BaseEntity {
     nullable: true,
   })
   public instructor?: Instructor;
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-many relationship with Enrollment entity
+   */
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
+  public enrollments: Enrollment[];
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-many relationship with CourseReview entity
+   */
+  @OneToMany(() => CourseReview, (courseReview) => courseReview.user)
+  public courseReviews: CourseReview[];
 }
