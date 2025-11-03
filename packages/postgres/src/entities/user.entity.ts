@@ -1,5 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { Instructor } from './instructor.entity';
+
 /**
  * TABLE-NAME: users
  * TABLE-DESCRIPTION: Stores user authentication credentials and basic user information
@@ -35,4 +37,12 @@ export class User extends BaseEntity {
     select: false,
   })
   public password: string;
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-one relationship with Instructor entity (optional)
+   */
+  @OneToOne(() => Instructor, (instructor) => instructor.user, {
+    nullable: true,
+  })
+  public instructor?: Instructor;
 }
