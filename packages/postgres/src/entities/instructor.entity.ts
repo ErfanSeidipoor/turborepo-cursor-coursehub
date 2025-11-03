@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
+import { Course } from './course.entity';
 
 /**
  * TABLE-NAME: instructors
@@ -13,6 +14,7 @@ import { User } from './user.entity';
  *   - inherits id (UUID), createdAt, updatedAt, and deletedAt from BaseEntity
  * TABLE-RELATIONSHIPS:
  *   - One-to-one relationship with User (each instructor is associated with exactly one user)
+ *   - One-to-many relationship with Course (an instructor can have multiple courses)
  */
 @Entity('instructors')
 export class Instructor extends BaseEntity {
@@ -55,4 +57,10 @@ export class Instructor extends BaseEntity {
   @OneToOne(() => User, (user) => user.instructor)
   @JoinColumn({ name: 'user_id' })
   public user: User;
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-many relationship with Course entity
+   */
+  @OneToMany(() => Course, (course) => course.instructor)
+  public courses: Course[];
 }
