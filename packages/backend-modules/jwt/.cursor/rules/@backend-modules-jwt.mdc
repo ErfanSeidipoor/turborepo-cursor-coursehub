@@ -1,0 +1,93 @@
+---
+description: Provides a reusable NestJS module for JSON Web Token (JWT) based authentication
+globs: 
+alwaysApply: false
+---
+
+- **Module Purpose**
+  - Provides a reusable NestJS module for JSON Web Token (JWT) based authentication.
+  - Encapsulates JWT creation, validation, and the Passport strategy for protecting endpoints.
+  - Centralizes environment variable handling for JWT configuration.
+
+- **Key Components**
+  - **`JwtModule`** ([module.ts](mdc:packages/backend-modules/jwt/src/module.ts))
+    - The main NestJS module that imports dependencies and exports the `JwtService`.
+    - It validates required environment variables at startup.
+  - **`JwtService`** ([jwt.service.ts](mdc:packages/backend-modules/jwt/src/services/jwt.service.ts))
+    - The core service responsible for signing and verifying JWTs.
+    - It reads configuration from environment variables.
+  - **`JwtStrategy`** ([jwt.strategy.ts](mdc:packages/backend-modules/jwt/src/strategies/jwt.strategy.ts))
+    - A Passport strategy that extracts and validates the JWT from the request `Authorization` header.
+    - It's designed to be used with a `JwtAuthGuard`.
+  - **`EnvEnum`** ([env.enum.ts](mdc:packages/backend-modules/jwt/src/env.enum.ts))
+    - Defines the required environment variables for this module.
+
+- **Environment Variables**
+  - This module relies on environment variables defined in [env.enum.ts](mdc:packages/backend-modules/jwt/src/env.enum.ts).
+  - The following variables must be present in your environment:
+    - `JWT__SECRET`: The secret key used to sign the tokens.
+    - `JWT__EXPIRES_IN`: The expiration time for standard access tokens (e.g., `1h`, `7d`).
+    - `JWT__REFRESH_EXPIRES_IN`: The expiration time for refresh tokens.
+  - The module will throw an error on startup if these variables are not defined, ensuring a fail-fast approach.
+
+- **Usage Pattern**
+  - **1. Import the Module**
+    - Import `JwtModule` into the target application module (e.g., `AppModule` or a specific feature module).
+    ```typescript
+    // In your application module
+    import { JwtModule } from '@repo/backend-modules/jwt';
+    
+    @Module({
+      imports: [JwtModule],
+      // ...
+    })
+    export class YourAppModule {}
+    ```
+  - **2. Protect Endpoints with a Guard**
+    - Create a `JwtAuthGuard` in your application that extends `AuthGuard('jwt')`.
+    - Use this guard to protect controllers or specific routes.
+    ```typescript
+    // Example: jwt-auth.guard.ts (in your application)
+    import { Injectable } from '@nestjs/common';
+    import { AuthGuard } from '@nestjs/passport';
+
+    @Injectable()
+    export class JwtAuthGuard extends AuthGuard('jwt') {}
+
+    // Example: user.controller.ts (in your application)
+    import { Controller, Get, UseGuards } from '@nestjs/common';
+    import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
+    @Controller('profile')
+    @UseGuards(JwtAuthGuard)
+    export class ProfileController {
+      @Get()
+      getProfile() {
+        // This route is now protected
+        return { user: 'profile' };
+      }
+    }
+    ```
+  - **3. Inject the Service**
+    - Inject `JwtService` into your own services (e.g., `AuthService`) to create and manage tokens.
+    ```typescript
+    // Example: auth.service.ts (in your application)
+    import { Injectable } from '@nestjs/common';
+    import { JwtService } from '@repo/backend-modules/jwt/services';
+
+    @Injectable()
+    export class AuthService {
+      constructor(private readonly jwtService: JwtService) {}
+
+      async login(user: any) {
+        const payload = { sub: user.id, username: user.username };
+        const accessToken = await this.jwtService.sign(payload);
+        return { accessToken };
+      }
+    }
+    ```
+
+- **Assistant Reminders**
+  - When working with this module, ensure that the `.env` file in the consuming application is correctly populated.
+  - Remember that this module only provides the JWT strategy; an `AuthGuard` must be implemented in the application to apply it.
+  - Always inject the `JwtService` from its barrel export path: `@repo/backend-modules/jwt/services`.

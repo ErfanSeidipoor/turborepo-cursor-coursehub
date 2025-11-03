@@ -1,0 +1,56 @@
+{
+  "name": "@repo/postgres",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm build --watch",
+    "build": "tsc -b -v",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create ./src/migrations/$npm_config_name",
+    "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d ./src/data-source.ts",
+    "migration:revert": "tsx ./node_modules/typeorm/cli.js migration:revert -d ./src/data-source.ts",
+    "migration:show": "tsx ./node_modules/typeorm/cli.js migration:show -d ./src/data-source.ts",
+    "schema:drop": "tsx ./node_modules/typeorm/cli.js schema:drop -d ./src/data-source.ts"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist/**"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@repo/enums": "workspace:*",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.3.1",
+    "ts-loader": "^9.4.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "5.5.4"
+  }
+}

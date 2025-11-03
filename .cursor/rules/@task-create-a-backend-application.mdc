@@ -1,0 +1,195 @@
+---
+description: This Cursor rule defines the standards and conventions for creating a new backend application using NestJS with Swagger/OpenAPI, CQRS, and the monorepo conventions from @backend.md.
+globs:
+alwaysApply: false
+---
+
+# task: create a backend application (@backend.md)
+
+// This rule defines the standards and conventions for scaffolding a new NestJS backend application inside the monorepo, ensuring consistency, maintainability, and proper documentation using Swagger. It mirrors the backend standards described in `@backend.md` and follows the same structure as `@task-create-an-api.mdc`.
+
+## Inputs Required to Apply This Rule
+
+To implement this rule, provide the following inputs:
+
+- `<APP>`:(required) The name of the backend application (kebab-case). This will be used as the app directory under `apps/<APP>` and as the global prefix.
+- `<DESCRIPTION>`:(optional) A human-readable description for Swagger docs (e.g., "The API description").
+- `<PORT>`:(optional) The port to run the application. Defaults to `process.env.PORT || 4000` for the first backend app, `4001` for the second, etc.
+- `<ENABLE_SWAGGER>`:(optional) Whether to configure Swagger. Defaults to `true`.
+
+## Environment Variables
+
+- All environment variables required for database connections, credentials, or configuration **must** be defined in the `.env` file located at the project root directory. If you need to access these environment variables from any subfolder (such as during migration scripts or local development), **copy and paste** the `.env` file into that subfolder to ensure environment variable resolution works as expected. This practice ensures consistency and prevents issues with missing or misconfigured environment variables during migration execution or development tasks.
+
+The following subtasks must be implemented to deliver a backend application in compliance with this rule:
+
+- **Subtasks for Backend Application Delivery**
+
+1. **SUBTASK-1: Validate inputs and preconditions**
+
+- Ensure `<APP>` is provided and uses kebab-case. The application folder will be created at `apps/<APP>`.
+- Confirm the global prefix must equal the application name (`<APP>`), as defined in `@backend.md`.
+- Pick a `<PORT>` or rely on the default rule: `process.env.PORT || 4000` (increment for additional backend apps).
+- Package manager is PNPM. All scripts must live in the new app's `package.json`.
+
+2. **SUBTASK-2: Build All Packages and Applications Before Implementation**
+
+- Before starting the implementation of any API endpoint, ensure that the entire monorepo builds successfully. This step confirms that all packages and applications are in a valid, compilable state and helps catch any pre-existing build errors.
+- Run the following command from the root of the repository to build all packages and applications:
+  ```
+  pnpm run build
+  ```
+- If you are working in a subfolder or a different environment, ensure the `.env` file is present in the working directory to provide the necessary environment variables for the build process.
+- Only proceed with API development after confirming that all builds have completed successfully and without errors.
+
+3. **SUBTASK-3: Scaffold application structure in `apps/<APP>`**
+
+- Create the NestJS application directory at `apps/<APP>` with the following minimal structure:
+  - `src/main.ts`
+  - `src/app.module.ts`
+  - `src/app.controller.ts` and/or an empty placeholder (optional)
+  - `src/app.service.ts` (optional)
+  - `src/modules/` (empty)
+  - Config files: `nest-cli.json`, `tsconfig.json`, `tsconfig.build.json`, `jest.config.ts` (or use existing monorepo presets)
+- Add `package.json` with the required scripts (see Subtask-6). Ensure it uses PNPM conventions.
+
+4. **SUBTASK-4: Implement `main.ts` with transactional context, global prefix, Swagger, and validation**
+
+- Initialize transactional context at the very beginning of bootstrap.
+- Set the global prefix to `<APP>` (must equal the application name per `@backend.md`).
+- Configure Swagger if `<ENABLE_SWAGGER>` is `true`.
+- Configure global validation pipe.
+- Listen on `<PORT>` with default fallback.
+
+```typescript
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+import { initializeTransactionalContext } from '@repo/backend-modules-postgres/initialize-transactional-context';
+
+async function bootstrap(): Promise<void> {
+  initializeTransactionalContext();
+  const app = await NestFactory.create(AppModule);
+
+  const globalPrefix = '<APP>';
+  app.setGlobalPrefix(globalPrefix);
+
+  // Swagger configuration (enabled by default)
+  const config = new DocumentBuilder()
+    .setTitle('<APP> Documentation')
+    .setDescription('<DESCRIPTION>')
+    .setVersion('1.0')
+    .addTag(globalPrefix)
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup(globalPrefix + '/docs', app, document);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      forbidUnknownValues: true,
+    }),
+  );
+
+  const port = process.env.PORT || <PORT> || 4000;
+  await app.listen(port);
+
+  Logger.log(`Application is running on: http://localhost:${port}/${globalPrefix}`);
+  Logger.log(`Swagger documentation: http://localhost:${port}/${globalPrefix}/docs`);
+}
+
+bootstrap();
+```
+
+5. **SUBTASK-5: Implement `app.module.ts` and register CQRS**
+
+- Use modular architecture and register `CqrsModule`.
+- Import domain modules under `src/modules/*` when they are added later.
+
+```typescript
+import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
+
+// import { UsersModule } from './modules/users/users.module'; // example
+
+@Module({
+  imports: [CqrsModule /*, UsersModule */],
+})
+export class AppModule {}
+```
+
+6. **SUBTASK-6: Configure and verify Swagger and global validation**
+
+- Confirm Swagger UI is available at `/<APP>/docs`.
+- Confirm global validation is active and rejects unknown values.
+- Ensure the Swagger tag equals the global prefix (`<APP>`).
+
+7. **SUBTASK-7: Add required NPM scripts to `apps/<APP>/package.json`**
+
+- The application must include the following scripts:
+
+```json
+{
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "nest start",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
+  }
+}
+"dependencies": {
+  "@nestjs/common": "^11.1.3",
+  "@nestjs/core": "^11.1.3",
+  "@nestjs/platform-express": "^10.0.0",
+  "@nestjs/swagger": "^7.1.17",
+  "@nestjs/typeorm": "^11.0.0",
+  "@repo/backend-modules-jwt": "workspace:*",
+  "@repo/backend-modules-postgres": "workspace:*",
+  "reflect-metadata": "^0.2.0",
+  "rxjs": "^7.8.1"
+},
+"devDependencies": {
+  "@jest/globals": "^29.7.0",
+  "@nestjs/cli": "^10.0.0",
+  "@nestjs/schematics": "^10.0.0",
+  "@nestjs/testing": "^10.0.0",
+  "@repo/eslint-config": "workspace:*",
+  "@repo/jest-config": "workspace:*",
+  "@repo/typescript-config": "workspace:*",
+  "@types/express": "^4.17.17",
+  "@types/node": "^20.3.1",
+  "@types/supertest": "^6.0.0",
+  "jest": "^29.7.0",
+  "source-map-support": "^0.5.21",
+  "supertest": "^6.3.3",
+  "ts-jest": "^29.2.5",
+  "ts-loader": "^9.4.3",
+  "ts-node": "^10.9.2",
+  "tsconfig-paths": "^4.2.0",
+  "typescript": "5.5.4"
+}
+```
+
+IMPORTANT: Always use the latest available versions of the npm packages listed above; the versions shown are only examples.
+IMPORTANT: Only include essential configuration in package.json; omit unnecessary or unrelated settings.
+
+8. **SUBTASK-8: Build All Packages and Applications to Verify Integration**
+
+- To ensure that all packages and applications in the monorepo build and integrate correctly, run the following command from the root of your repository: `npm run build`
+
+9. **SUBTASK-9: Final checks and readiness**
+
+- Verify the app builds and starts: `pnpm -w --filter <APP> dev` (or your workspace runner).
+- Ensure the global prefix equals `<APP>` and that the application responds under `http://localhost:<PORT>/<APP>`.
+
+// End of task definition

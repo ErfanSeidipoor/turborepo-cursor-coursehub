@@ -1,0 +1,77 @@
+---
+description: Conventions, layout and templates for the central enums package
+globs: 
+alwaysApply: false
+---
+---
+description: Conventions, layout and templates for the central enums package
+globs:
+  - "packages/enums/**/*"
+alwaysApply: false
+---
+
+- **Package Purpose**
+  - Single source-of-truth for all shared TypeScript enums.
+  - Guarantees naming / export consistency across the monorepo.
+  - Public API surface is only `packages/enums/src/index.ts`.
+
+- **Structure**
+  - Place source files in `packages/enums/src/`.
+  - One enum **per file**; filename must be kebab-case and end with `.enum.ts`
+    - `user-role.enum.ts`
+    - `order-status.enum.ts`
+  - Re-export every enum through `src/index.ts` (named exports, alphabetical).
+
+- **Naming**
+  - Enum identifier → PascalCase & suffixed with `Enum`
+    - `UserRoleEnum`, `OrderStatusEnum`
+  - Members → UPPER_SNAKE_CASE **string** literals for clear logs/debugging.
+    ```typescript
+    export enum UserRoleEnum {
+      ADMIN = 'ADMIN',                   // ✅ Correct
+      REGULAR_USER = 'REGULAR_USER',     // ✅ Correct
+      guest = 'GUEST',                   // ❌ Wrong: not UPPER_SNAKE_CASE
+      VIEWER = 1,                        // ❌ Wrong: not a string literal
+    }
+    ```
+  - For database table field enums, follow the naming convention: `{TableName}{FieldName}Enum`
+    ```typescript
+    // Example: For a 'status' field in the 'orders' table
+      //     @Entity("orders")
+      //     export class Order  {
+      //       @Column("enum", {
+      //            name: "status",
+      //            enum: OrdersStatusEnum,
+      //            nullable: false,
+      //       })
+      //       status: OrdersStatusEnum;
+      //     }
+
+
+      export enum OrdersStatusEnum {
+          PENDING = 'PENDING',
+          PROCESSING = 'PROCESSING',
+          COMPLETED = 'COMPLETED',
+          CANCELLED = 'CANCELLED'
+      }
+    ```
+
+- **Definition Checklist**
+  - Use TypeScript `enum` (prefer string enums; avoid `const enum` unless perf-critical).
+  - Provide a JSDoc block for the enum **and** each member.
+  - Avoid cross-package imports inside enums.
+
+- **Boilerplate Template**
+  - @enum-template.ts
+
+- **Barrel Example (`src/index.ts`)**
+  ```ts
+  // alphabetical export order
+  export { OrderStatusEnum } from './order-status.enum';
+  export { UserRoleEnum }   from './user-role.enum';
+  ```
+
+- **Assistant reminders (when this rule is active)**
+  - Suggest correct file paths / names for new enums.
+  - Always include the JSDoc template.
+  - Update `src/index.ts` barrel whenever new enums are added.

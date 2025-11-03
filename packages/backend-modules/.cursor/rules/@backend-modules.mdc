@@ -1,0 +1,232 @@
+---
+description: This rule defines how every backend module inside `packages/backend-modules` must be created, structured, named and exported. Whenever the AI (or a teammate) touches a file captured by the `globs` above, include this guidance.
+globs: 
+alwaysApply: false
+---
+
+# Backend Modules Package Rule (@backend-modules.mdc)
+This rule defines how every backend module inside `packages/backend-modules` must be created, structured, named and exported. Whenever the AI (or a teammate) touches a file captured by the `globs` above, include this guidance.
+
+## 1 - Package Purpose
+• Single source-of-truth for all shared backend modules required by NestJS applications.
+• Provides reusable, testable modules for common backend functionality (database, authentication, caching, etc.).
+• Guarantees consistent module structure and export patterns across the monorepo.
+• All handler modules in applications should import services from these backend modules.
+
+## 2 - Structure
+1. Each module lives in its own directory: `packages/backend-modules/{module-name}/`
+2. Standard module structure:
+   ```
+   packages/backend-modules/
+   ├── postgres/
+   │   ├── src/
+   │   │   ├── module.ts           # Main NestJS module
+   │   │   ├── env.enum.ts         # Environment variables (if needed)
+   │   │   ├── services/
+   │   │   │   └── index.ts        # Service exports
+   │   │   └── types/              # Module-specific types (optional)
+   │   ├── package.json
+   │   ├── tsconfig.json
+   │   └── eslint.config.js
+   └── jwt/                        # Future module example
+       ├── src/
+       │   ├── module.ts
+       │   ├── env.enum.ts         # Environment variables (if needed)
+       │   ├── services/
+       │   │   └── index.ts
+       │   └── guards/             # Module-specific guards (optional)
+       └── ...
+   ```
+
+## 3 - Naming Conventions
+• Module directory → kebab-case: `postgres`, `jwt-auth`, `redis-cache`
+• Main module class → PascalCase + `Module` suffix: `PostgresDBModule`, `JwtAuthModule`
+• Service classes → PascalCase + `Service` suffix: `UserService`, `AuthService`
+• Files → kebab-case with type suffix: `module.ts`, `user.service.ts`
+
+## 4 - Module Requirements
+### Main Module File (`module.ts`)
+1. Must be a valid NestJS `@Module()` decorator
+2. Must export all services in the `exports` array
+3. Must import necessary external modules in `imports` array
+4. Must include JSDoc documentation
+
+### Services Directory (`services/`)
+1. Barrel export in `services/index.ts`:
+   ```typescript
+   export const services = [
+     UserService,
+     ProfileService,
+     // ... other services
+   ];
+   ```
+2. Individual service files follow NestJS service patterns
+3. All services must be Injectable and properly typed
+
+### Package Configuration
+1. Each module must have its own `package.json` with proper dependencies
+2. Must extend base TypeScript config: `@repo/typescript-config/base.json`
+3. Must use shared ESLint config
+4. Must include proper `exports` section in `package.json` for importing inside any app:
+   ```json
+   "exports": {
+       ".": "./src/module.ts",
+       "./services": "./src/services/index.ts",
+       "./*": "./src/*"
+   }
+   ```
+
+## 5 - Integration Pattern
+Backend modules are designed to be imported by application modules:
+
+```typescript
+// In your application module
+import { PostgresDBModule } from '@repo/backend-modules/postgres';
+import { JwtModule } from '@repo/backend-modules/jwt';
+
+@Module({
+  imports: [
+    PostgresDBModule,
+    JwtModule,
+  ],
+  // ... your module config
+})
+export class YourAppModule {}
+```
+
+## 6 - Module Template Structure
+
+### module.ts Template
+```typescript
+import { Module } from '@nestjs/common';
+import { services } from './services';
+
+/**
+ * {ModuleName}Module provides {brief description of functionality}
+ * 
+ * This module exports:
+ * - {Service1}: {brief description}
+ * - {Service2}: {brief description}
+ */
+@Module({
+  imports: [
+    // External module imports
+  ],
+  providers: [
+    ...services,
+  ],
+  exports: [
+    ...services,
+    // Export any external modules that consumers need
+  ],
+})
+export class {ModuleName}Module {}
+```
+
+### services/index.ts Template
+```typescript
+// Import all services
+import { ExampleService } from './example.service';
+
+/**
+ * Barrel export of all services provided by this backend module
+ */
+export const services = [
+  ExampleService,
+];
+
+// Re-export for direct imports if needed
+export { ExampleService };
+```
+
+## 7 - Environment Variables
+When a backend module requires environment variables for configuration, it must follow these patterns:
+
+### Environment Variables Enum (`env.enum.ts`)
+1. Create an `env.enum.ts` file in the module's `src/` directory
+2. Define all required environment variables as enum values
+3. Use UPPER_SNAKE_CASE naming convention matching actual environment variable names
+4. Include JSDoc documentation for each variable
+
+```typescript
+/**
+ * Environment variables required by the JWT module
+ */
+export enum EnvEnum {
+  /** JWT secret key for token signing */
+  JWT__SECRET = 'JWT__SECRET',
+  
+  /** JWT token expiration time (e.g., '1h', '24h', '7d') */
+  JWT__EXPIRES_IN = 'JWT__EXPIRES_IN',
+  
+  /** JWT refresh token expiration time */
+  JWT__REFRESH_EXPIRES_IN = 'JWT__REFRESH_EXPIRES_IN',
+}
+```
+
+### Environment Variables Validation
+1. Import the `EnvEnum` at the top of your `module.ts` file
+2. Add validation logic before the `@Module()` decorator
+3. Throw descriptive errors for missing variables
+4. This ensures environment variables are validated at application startup
+
+```typescript
+import { Module } from '@nestjs/common';
+import { EnvEnum } from './env.enum';
+import { services } from './services';
+
+// Validate required environment variables
+for (const key of Object.keys(EnvEnum)) {
+  if (!process.env[key]) {
+    throw new Error(`Environment variable ${key} must be defined`);
+  }
+}
+
+/**
+ * JwtModule provides JWT authentication functionality
+ */
+@Module({
+  imports: [
+    // External module imports
+  ],
+  providers: [
+    ...services,
+  ],
+  exports: [
+    ...services,
+  ],
+})
+export class JwtModule {}
+```
+
+### Environment Variables Best Practices
+1. **Required vs Optional**: Only include truly required variables in the enum and validation
+2. **Default Values**: For optional variables, handle defaults in services rather than at module level
+3. **Type Safety**: Consider creating a typed configuration service for complex environment setups
+4. **Documentation**: Document expected values and formats in the enum JSDoc
+5. **Naming**: Follow the pattern `{MODULE_NAME}__{VARIABLE_PURPOSE}` for uniqueness
+
+
+## 8 - Dependencies
+• Use peer dependencies for framework packages (NestJS, TypeORM, etc.)
+• Pin specific versions for utility libraries
+• Document peer dependency requirements in README
+
+## 9 - Documentation
+Each module should include:
+1. README.md with usage examples
+2. JSDoc on all public classes and methods
+3. Clear peer dependency requirements
+4. Integration examples
+
+---
+### Assistant reminders (when this rule is active)
+1. Suggest proper module directory structure for new backend modules
+2. Ensure proper NestJS module patterns are followed
+3. Verify services are properly exported and typed
+4. Check that integration patterns are documented
+5. Validate test coverage for services
+6. Ensure proper dependency management
+7. Verify environment variables are properly defined in `env.enum.ts` when needed
+8. Ensure environment variable validation is implemented at module initialization
+9. Check that environment variable naming follows UPPER_SNAKE_CASE convention
