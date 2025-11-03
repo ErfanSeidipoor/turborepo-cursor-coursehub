@@ -57,3 +57,119 @@ export const USER_PASSWORD_EMPTY: ICustomError = {
   status: HttpStatus.BAD_REQUEST,
   description: 'Password Cannot Be Empty',
 };
+
+// ============================================================================
+// INSTRUCTOR ERRORS
+// ============================================================================
+
+export const INSTRUCTOR_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Instructor Not Found',
+};
+
+export const INSTRUCTOR_USER_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'User ID Is Required For Instructor',
+};
+
+export const INSTRUCTOR_USER_ALREADY_INSTRUCTOR: ICustomError = {
+  status: HttpStatus.CONFLICT,
+  description: 'User Is Already An Instructor',
+};
+
+// ============================================================================
+// COURSE ERRORS
+// ============================================================================
+
+export const COURSE_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Course Not Found',
+};
+
+export const COURSE_TITLE_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course Title Is Required',
+};
+
+export const COURSE_TITLE_EMPTY: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course Title Cannot Be Empty',
+};
+
+export const COURSE_INSTRUCTOR_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Instructor ID Is Required For Course',
+};
+
+export const COURSE_INSTRUCTOR_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Instructor Not Found For This Course',
+};
+
+export const COURSE_INVALID_STATUS_TRANSITION: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid Course Status Transition',
+};
+
+// ============================================================================
+// SECTION ERRORS
+// ============================================================================
+
+export const SECTION_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Section Not Found',
+};
+
+export const SECTION_TITLE_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Section Title Is Required',
+};
+
+export const SECTION_TITLE_EMPTY: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Section Title Cannot Be Empty',
+};
+
+export const SECTION_COURSE_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course ID Is Required For Section',
+};
+
+export const SECTION_COURSE_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course Not Found For This Section',
+};
+
+// ============================================================================
+// LESSON ERRORS
+// ============================================================================
+
+export const LESSON_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Lesson Not Found',
+};
+
+export const LESSON_TITLE_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Lesson Title Is Required',
+};
+
+export const LESSON_TITLE_EMPTY: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Lesson Title Cannot Be Empty',
+};
+
+export const LESSON_SECTION_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Section ID Is Required For Lesson',
+};
+
+export const LESSON_SECTION_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Section Not Found For This Lesson',
+};
+
+export const LESSON_INVALID_CONTENT_URL: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid Content URL For Lesson',
+};
