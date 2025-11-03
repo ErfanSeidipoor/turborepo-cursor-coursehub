@@ -3,6 +3,8 @@ import { BaseEntity } from './base.entity';
 import { Instructor } from './instructor.entity';
 import { Section } from './section.entity';
 import { CoursesStatusEnum } from '@repo/enums';
+import { Enrollment } from './enrollment.entity';
+import { CourseReview } from './course-review.entity';
 
 /**
  * TABLE-NAME: courses
@@ -16,6 +18,8 @@ import { CoursesStatusEnum } from '@repo/enums';
  * TABLE-RELATIONSHIPS:
  *   - Many-to-one relationship with Instructor (each course belongs to one instructor)
  *   - One-to-many relationship with Section (a course can have multiple sections)
+ *   - One-to-many relationship with Enrollment (a course can have multiple enrollments)
+ *   - One-to-many relationship with CourseReview (a course can have multiple reviews)
  */
 @Entity('courses')
 export class Course extends BaseEntity {
@@ -74,4 +78,16 @@ export class Course extends BaseEntity {
    */
   @OneToMany(() => Section, (section) => section.course)
   public sections: Section[];
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-many relationship with Enrollment entity
+   */
+  @OneToMany(() => Enrollment, (enrollment) => enrollment.course)
+  public enrollments: Enrollment[];
+
+  /**
+   * RELATIONSHIP-DESCRIPTION: One-to-many relationship with CourseReview entity
+   */
+  @OneToMany(() => CourseReview, (courseReview) => courseReview.course)
+  public courseReviews: CourseReview[];
 }
