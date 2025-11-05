@@ -251,3 +251,52 @@ export const PROGRESS_NO_ACTIVE_ENROLLMENT: ICustomError = {
   status: HttpStatus.FORBIDDEN,
   description: 'No Active Enrollment Found For Progress Update',
 };
+
+// ============================================================================
+// COURSE REVIEW ERRORS
+// ============================================================================
+
+export const COURSE_REVIEW_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Course Review Not Found',
+};
+
+export const COURSE_REVIEW_USER_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'User ID Is Required For Course Review',
+};
+
+export const COURSE_REVIEW_COURSE_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course ID Is Required For Course Review',
+};
+
+export const COURSE_REVIEW_RATING_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Rating Is Required For Course Review',
+};
+
+export const COURSE_REVIEW_USER_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'User Not Found For This Course Review',
+};
+
+export const COURSE_REVIEW_COURSE_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course Not Found For This Course Review',
+};
+
+export const COURSE_REVIEW_ALREADY_EXISTS: ICustomError = {
+  status: HttpStatus.CONFLICT,
+  description: 'User Has Already Reviewed This Course',
+};
+
+export const COURSE_REVIEW_INVALID_RATING: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Rating Must Be Between 1 And 5',
+};
+
+export const COURSE_REVIEW_NO_ENROLLMENT: ICustomError = {
+  status: HttpStatus.FORBIDDEN,
+  description: 'User Must Be Enrolled In Course To Submit Review',
+};
