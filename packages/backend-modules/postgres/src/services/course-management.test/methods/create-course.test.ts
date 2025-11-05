@@ -9,7 +9,6 @@ import { TestManager } from '../../../test-manager.test';
 import { CourseManagementService } from '../../course-management.service';
 import { UserService } from '../../user.service';
 import { Instructor } from '@repo/postgres/entities/instructor.entity';
-import { User } from '@repo/postgres/entities/user.entity';
 import { faker } from '@faker-js/faker';
 import { CoursesStatusEnum } from '@repo/enums';
 

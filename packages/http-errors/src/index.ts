@@ -173,3 +173,81 @@ export const LESSON_INVALID_CONTENT_URL: ICustomError = {
   status: HttpStatus.BAD_REQUEST,
   description: 'Invalid Content URL For Lesson',
 };
+
+// ============================================================================
+// ENROLLMENT ERRORS
+// ============================================================================
+
+export const ENROLLMENT_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Enrollment Not Found',
+};
+
+export const ENROLLMENT_USER_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'User ID Is Required For Enrollment',
+};
+
+export const ENROLLMENT_COURSE_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course ID Is Required For Enrollment',
+};
+
+export const ENROLLMENT_USER_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'User Not Found For This Enrollment',
+};
+
+export const ENROLLMENT_COURSE_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Course Not Found For This Enrollment',
+};
+
+export const ENROLLMENT_ALREADY_EXISTS: ICustomError = {
+  status: HttpStatus.CONFLICT,
+  description: 'User Is Already Enrolled In This Course',
+};
+
+export const ENROLLMENT_INVALID_COMPLETION_STATUS: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid Completion Status Value',
+};
+
+// ============================================================================
+// PROGRESS ERRORS
+// ============================================================================
+
+export const PROGRESS_NOT_FOUND: ICustomError = {
+  status: HttpStatus.NOT_FOUND,
+  description: 'Progress Not Found',
+};
+
+export const PROGRESS_ENROLLMENT_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Enrollment ID Is Required For Progress',
+};
+
+export const PROGRESS_LESSON_ID_REQUIRED: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Lesson ID Is Required For Progress',
+};
+
+export const PROGRESS_ENROLLMENT_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Enrollment Not Found For This Progress',
+};
+
+export const PROGRESS_LESSON_NOT_FOUND: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Lesson Not Found For This Progress',
+};
+
+export const PROGRESS_INVALID_LAST_WATCHED_TIME: ICustomError = {
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid Last Watched Time Value',
+};
+
+export const PROGRESS_NO_ACTIVE_ENROLLMENT: ICustomError = {
+  status: HttpStatus.FORBIDDEN,
+  description: 'No Active Enrollment Found For Progress Update',
+};
