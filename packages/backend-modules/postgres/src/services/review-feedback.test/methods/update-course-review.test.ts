@@ -407,4 +407,3 @@ describe('ReviewFeedbackService - updateCourseReview', () => {
     expect(actualResult.reviewText).toBeNull();
   });
 });
-

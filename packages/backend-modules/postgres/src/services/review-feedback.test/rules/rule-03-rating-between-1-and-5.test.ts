@@ -1,7 +1,4 @@
-import {
-  CustomError,
-  COURSE_REVIEW_INVALID_RATING,
-} from '@repo/http-errors';
+import { CustomError, COURSE_REVIEW_INVALID_RATING } from '@repo/http-errors';
 import { TestManager } from '../../../test-manager.test';
 import { ReviewFeedbackService } from '../../review-feedback.service';
 import { UserService } from '../../user.service';
@@ -406,4 +403,3 @@ describe('Domain Rule 03 - Rating Must Be Between 1 And 5', () => {
     ).rejects.toThrow(new CustomError(COURSE_REVIEW_INVALID_RATING));
   });
 });
-

@@ -86,4 +86,3 @@ describe('ReviewFeedbackService - deleteCourseReview', () => {
     ).rejects.toThrow(new CustomError(COURSE_REVIEW_NOT_FOUND));
   });
 });
-

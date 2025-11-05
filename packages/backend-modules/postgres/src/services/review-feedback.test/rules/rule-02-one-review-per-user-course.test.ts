@@ -1,7 +1,4 @@
-import {
-  CustomError,
-  COURSE_REVIEW_ALREADY_EXISTS,
-} from '@repo/http-errors';
+import { CustomError, COURSE_REVIEW_ALREADY_EXISTS } from '@repo/http-errors';
 import { TestManager } from '../../../test-manager.test';
 import { ReviewFeedbackService } from '../../review-feedback.service';
 import { UserService } from '../../user.service';
@@ -261,4 +258,3 @@ describe('Domain Rule 02 - One Review Per User Per Course', () => {
     expect(updatedReview.rating).toBe(5);
   });
 });
-

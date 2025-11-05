@@ -173,4 +173,3 @@ describe('Domain Rule 01 - Enrollment Required For Course Review', () => {
     ).rejects.toThrow(new CustomError(COURSE_REVIEW_NO_ENROLLMENT));
   });
 });
-
